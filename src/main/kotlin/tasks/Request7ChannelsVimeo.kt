@@ -35,25 +35,55 @@ suspend fun loadVideosChannels(
 
 fun <T> retrofit2.Response<T>.parseVideo(id: Int): Video {
     println("Video processed:     $id")
+    this.errorBody()?.string()?.contains("Verify to Continue")?.let{
+        pleaseVerify()
+        return Video(0,"")
+    }
     val body = body() as ResponseBody?
         ?: //        println("Body was null.")
         return Video(0,"")
-    val string = body. string()
-    return Video(id, string.substringBetween("<title>", "</title>").let{
-        if(it=="Verify to Continue") throw IllegalStateException("Please verify to continue")
-        it
-    }
-    )
+    val string = body.string()
+    return Video(id, string.substringBetween("<title>", "</title>"))
 }
+private var counter = 0
+private var tooManyDialogs = false
 @Throws(IOException::class)
-fun textboxMessage(message: String, title: String?, messageType: Int = JOptionPane.ERROR_MESSAGE) {
-    val scrollPane: JScrollPane = formatJScrollPane_SizeAndFont_Etc(message)
-    JOptionPane.showMessageDialog(
-        null,
-        scrollPane,
-        title,
-        messageType
-    )
+fun textboxMessage(message: String, title: String?, messageType: Int = JOptionPane.ERROR_MESSAGE, override:Boolean = false) {
+    if(counter++ <5 || override){
+        val scrollPane: JScrollPane = formatJScrollPane_SizeAndFont_Etc(message)
+        JOptionPane.showMessageDialog(
+            null,
+            scrollPane,
+            title,
+            messageType
+        )
+    } else {
+        displayTooManyDialog()
+    }
+}
+private var needToVerify = false
+fun pleaseVerify(){
+    if(!needToVerify){
+        needToVerify = true
+        JOptionPane.showMessageDialog(
+            null,
+            "Please verify to continue",
+            "Please verify to continue",
+            JOptionPane.ERROR_MESSAGE
+        )
+    }
+}
+fun displayTooManyDialog(){
+    if(!tooManyDialogs){
+        tooManyDialogs = true
+        val scrollPane: JScrollPane = formatJScrollPane_SizeAndFont_Etc("Too many error dialogs displayed. Ceasing to display more.")
+        JOptionPane.showMessageDialog(
+            null,
+            scrollPane,
+            "Too many dialogs",
+            JOptionPane.ERROR_MESSAGE
+        )
+    }
 }
 @Throws(IOException::class)
 fun formatJScrollPane_SizeAndFont_Etc(message: String?): JScrollPane {

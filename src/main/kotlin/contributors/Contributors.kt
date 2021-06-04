@@ -132,8 +132,8 @@ interface Contributors: CoroutineScope {
                             }
                         }, {
                             SwingUtilities.invokeLater {
-                                println("Done/error. ${observableVideo.blockingSingle().title.matchesVideoConstraint()}")
-                                println("error ${it.message}")
+                                println("Done/error. ${observableVideo.blockingSingle().id}")
+                                textboxMessage("Error: ${it.message}", "error")
                                 setLoadingStatus("error ${it.message}, ${(System.currentTimeMillis() - startTime).let{time->"${time / 1000}." + "${time % 1000 / 100} sec"}}",false)
                                 setActionsStatus(newLoadingEnabled = true)
                             }
@@ -178,7 +178,7 @@ interface Contributors: CoroutineScope {
         completed: Boolean = true,
     ) {
         updateVideos(video)
-        updateLoadingStatus((if (completed) COMPLETED else IN_PROGRESS).also{println("Completed: $it")}, startTime)
+        updateLoadingStatus((if (completed) COMPLETED else IN_PROGRESS), startTime)
         if (completed) {
             setActionsStatus(newLoadingEnabled = true)
         }

@@ -89,11 +89,16 @@ class ContributorsUI : JFrame("GitHub Contributors"), Contributors {
     override fun removeCancelListener(listener: ActionListener) {
         cancel.removeActionListener(listener)
     }
-
+    fun setStartTime(startT:Int? = null):Int{
+        return startT?.also{startTime = it} ?: start.text.toInt().also{startTime = it}
+    }
+    fun setEndTime(endT:Int? = null):Int{
+        return endT?.also{endTime = it} ?: end.text.toInt().also{endTime = it}
+    }
     override fun addLoadListener(listener: () -> Unit) {
         load.addActionListener {
-            startTime = start.text.toInt()
-            endTime = end.text.toInt()
+            setStartTime()
+            setEndTime()
             videoCounter = 0
             listener()
         }
@@ -143,7 +148,7 @@ class ContributorsUI : JFrame("GitHub Contributors"), Contributors {
 var startTime:Int? = null
 var endTime:Int? = null
     override fun getStartAndEnd(): Pair<Int, Int> {
-        return Pair(startTime ?: start.text.toInt().also{startTime = it}, endTime ?: end.text.toInt().also{endTime = it})
+        return Pair(setStartTime(), setEndTime())
     }
 }
 
